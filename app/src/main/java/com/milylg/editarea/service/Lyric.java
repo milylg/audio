@@ -2,6 +2,7 @@ package com.milylg.editarea.service;
 
 public class Lyric {
     private final String lyric;
+    private String translation;
     private final int startTime;
     private int endTime;
 
@@ -20,6 +21,14 @@ public class Lyric {
 
     void setEndTime(int endTime) {
         this.endTime = endTime;
+    }
+
+    public void setTranslation(String translation) {
+        this.translation = translation;
+    }
+
+    public String getTranslation() {
+        return translation;
     }
 
     public int getEndTime() {

@@ -18,99 +18,96 @@
             type="com.milylg.editarea.viewmodel.AudioViewModel" />
     </data>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".MainActivity">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            app:menu="@menu/home"
-            app:title="Audio"
-            app:titleTextColor="@color/secondaryLightColor" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="200dp">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_en_statement"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:gravity="center"
-                android:text="@{vm.enAudioStatement}"
-                android:textColor="@color/primaryColor"
-                android:textSize="16sp"/>
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_cn_statement"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_below="@+id/tv_en_statement"
-                android:gravity="center"
-                android:text="@{vm.cnAudioStatement}"
-                android:textColor="@color/primaryLightColor"
-                android:textSize="14sp"/>
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btn_play_music"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerInParent="true"
-                android:layout_marginBottom="30dp"
-                android:onClick="@{()-> action.play()}"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_baseline_pause"/>
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btn_previous_song"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerInParent="true"
-                android:layout_toStartOf="@+id/btn_play_music"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="30dp"
-                android:onClick="@{()-> action.previousSentence()}"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_baseline_skip_previous"/>
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btn_next_song"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerInParent="true"
-                android:layout_toEndOf="@+id/btn_play_music"
-                android:layout_marginStart="16dp"
-                android:layout_marginBottom="30dp"
-                android:onClick="@{()-> action.nextSentence()}"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_baseline_skip_next"/>
-
-        </RelativeLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_note_list_view"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fadingEdge="none"
             android:orientation="vertical"
-            android:overScrollMode="never"
-            app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
-            app:songItems="@{vm.items}"
-            app:spanCount="2"
-            tools:listitem="@layout/item_song" />
+            tools:context=".MainActivity">
 
-    </LinearLayout>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@android:color/transparent"
+                app:menu="@menu/home"
+                app:title="Audio"
+                app:titleTextColor="@color/secondaryLightColor" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="240dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_en_statement"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_margin"
+                    android:layout_marginEnd="@dimen/activity_margin"
+                    android:gravity="center"
+                    android:text="@{vm.enAudioStatement}"
+                    android:textColor="@color/primaryColor"
+                    android:textSize="@dimen/normal_font_size"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_cn_statement"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_margin"
+                    android:layout_marginEnd="@dimen/activity_margin"
+                    android:layout_below="@+id/tv_en_statement"
+                    android:gravity="center"
+                    android:text="@{vm.cnAudioStatement}"
+                    android:textColor="@color/primaryLightColor"
+                    android:textSize="@dimen/small_font_size"/>
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btn_play_music"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerInParent="true"
+                    android:onClick="@{()-> action.play()}"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_baseline_pause"/>
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btn_previous_song"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerInParent="true"
+                    android:layout_toStartOf="@+id/btn_play_music"
+                    android:layout_marginEnd="@dimen/activity_margin"
+                    android:onClick="@{()-> action.previousSentence()}"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_baseline_skip_previous"/>
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btn_next_song"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerInParent="true"
+                    android:layout_toEndOf="@+id/btn_play_music"
+                    android:layout_marginStart="@dimen/activity_margin"
+                    android:onClick="@{()-> action.nextSentence()}"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_baseline_skip_next"/>
+
+            </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_note_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fadingEdge="none"
+                android:orientation="vertical"
+                android:overScrollMode="never"
+                app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
+                app:songItems="@{vm.items}"
+                app:spanCount="2"
+                tools:listitem="@layout/item_song" />
+
+        </LinearLayout>
 </layout>

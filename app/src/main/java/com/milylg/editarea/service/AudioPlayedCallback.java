@@ -6,6 +6,6 @@ public interface AudioPlayedCallback {
 
     void onError();
 
-    void lyricText(String lrc);
+    void lyricText(String lrc, String translation);
 
 }

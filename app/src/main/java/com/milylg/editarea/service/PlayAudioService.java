@@ -45,7 +45,10 @@ public class PlayAudioService extends Service {
                 if (timePlayed >= lyric.getStartTime()
                         && timePlayed < lyric.getEndTime()) {
                     if (currentLyricIndex != i) {
-                        audioPlayedCallback.lyricText(lyric.getLyric());
+                        audioPlayedCallback.lyricText(
+                                lyric.getLyric(),
+                                lyric.getTranslation()
+                        );
                         currentLyricIndex = i;
                     }
                     break;
@@ -163,7 +166,10 @@ public class PlayAudioService extends Service {
                     playAudioBinder.seekToOrigin();
                     playAudioBinder.audioPlayFinished();
                 });
-        // OnError
+        mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+            audioPlayedCallback.onError();
+            return false;
+        });
     }
 
     /**

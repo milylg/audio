@@ -22,8 +22,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_margin"
         android:onClick="@{(view)-> clickAction.onClick(view)}">
 
         <TextView
@@ -35,13 +35,14 @@
 
         <TextView
             android:id="@+id/tv_song_name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_baseline_music_note_24"
+            android:drawableTop="@drawable/ic_baseline_music_note_24"
             android:gravity="start|center_vertical"
+            android:layout_gravity="center"
             android:text="@{item.songName}"
             android:textColor="@color/primaryTextColor"
-            android:textSize="16sp"
+            android:textSize="@dimen/normal_font_size"
             tools:ignore="UseCompatTextViewDrawableXml" />
     </LinearLayout>
 </layout>

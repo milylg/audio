@@ -68,4 +68,15 @@ public class AudioViewModel extends AndroidViewModel {
         items.clear();
         items.addAll(newSongs);
     }
+
+    private final SingleLiveEvent<Void> mediaError = new SingleLiveEvent<>();
+
+    public SingleLiveEvent<Void> mediaErrorEvent() {
+        return mediaError;
+    }
+
+    public void handleMediaError() {
+        mediaError.call();
+    }
+
 }

@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -88,12 +90,12 @@ public class AudioActivity extends AppCompatActivity {
 
         @Override
         public void onError() {
-
+            audioViewModel.handleMediaError();
         }
 
         @Override
-        public void lyricText(String lrc) {
-            audioViewModel.updateAudioLyric(lrc, "");
+        public void lyricText(String lrc, String translation) {
+            audioViewModel.updateAudioLyric(lrc, translation);
         }
     };
 
@@ -114,6 +116,26 @@ public class AudioActivity extends AppCompatActivity {
         }
     };
 
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            audioViewModel.seekAudio(SeekMode.PREV_SENTENCE);
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            audioViewModel.seekAudio(SeekMode.NEXT_SENTENCE);
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     private final AudioItemClickAction audioItemClickAction = new AudioItemClickAction() {
         @Override
         public void onClick(View v) {
@@ -122,6 +144,7 @@ public class AudioActivity extends AppCompatActivity {
             Log.i(TAG, "onClick: mp3 path = " + mp3);
             if (!hasAvailableAudioLrc(mp3)) {
                 homeBinding.tvCnStatement.setText("No lyric.");
+                return;
             }
 
             List<Lyric> lyrics = lrcInfo(lrcPath(mp3));
@@ -223,6 +246,11 @@ public class AudioActivity extends AppCompatActivity {
                 }
             }
         });
+
+        audioViewModel.mediaErrorEvent().observe(this,
+                unused -> Snackbar.make(homeBinding.rvNoteListView,
+                "Error!",
+                LENGTH_SHORT).show());
     }
 
     private boolean hasAvailableAudioLrc(String audioPath) {
@@ -243,7 +271,7 @@ public class AudioActivity extends AppCompatActivity {
     private List<Lyric> lrcInfo(String lrcPath) {
         List<Lyric> lyrics = new ArrayList<>();
         try (FileInputStream fileInputStream = new FileInputStream(lrcPath);
-             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
+             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "GBK");
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
             String regex = "\\[\\d\\d:\\d\\d.\\d\\d]";
@@ -255,6 +283,10 @@ public class AudioActivity extends AppCompatActivity {
                     int timeInt = timeToInt(matcher.group().substring(1, 9));
                     String textStr = line.substring(matcher.end());
                     lyrics.add(new Lyric(textStr, timeInt));
+                } else {
+                    if (!lyrics.isEmpty()) {
+                        lyrics.get(lyrics.size() - 1).setTranslation(line);
+                    }
                 }
             }
         } catch (IOException e) {
