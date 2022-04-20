@@ -12,6 +12,8 @@ import com.milylg.editarea.SingleLiveEvent;
 import com.milylg.editarea.service.Song;
 import com.milylg.editarea.ui.SongItem;
 
+import java.util.List;
+
 public class AudioViewModel extends AndroidViewModel {
 
     public ObservableList<SongItem> items = new ObservableArrayList<SongItem>();
@@ -50,5 +52,20 @@ public class AudioViewModel extends AndroidViewModel {
 
     public SingleLiveEvent<Void> togglePlayEvent() {
         return pauseStatus;
+    }
+
+    private final SingleLiveEvent<SeekMode> seekSentence = new SingleLiveEvent<>();
+
+    public SingleLiveEvent<SeekMode> seekAudioEvent() {
+        return seekSentence;
+    }
+
+    public void seekAudio(SeekMode seekMode) {
+        seekSentence.setValue(seekMode);
+    }
+
+    public void refreshSongs(List<SongItem> newSongs) {
+        items.clear();
+        items.addAll(newSongs);
     }
 }

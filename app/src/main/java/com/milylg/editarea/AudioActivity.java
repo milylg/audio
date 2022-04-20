@@ -1,13 +1,5 @@
 package com.milylg.editarea;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,6 +19,14 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.snackbar.Snackbar;
 import com.milylg.editarea.databinding.ActivityMainBinding;
 import com.milylg.editarea.service.AudioPlayedCallback;
@@ -38,17 +38,21 @@ import com.milylg.editarea.ui.SongAdapter;
 import com.milylg.editarea.ui.SongAdjustAction;
 import com.milylg.editarea.ui.SongItem;
 import com.milylg.editarea.viewmodel.AudioViewModel;
+import com.milylg.editarea.viewmodel.SeekMode;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG;
 import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_SHORT;
 
 public class AudioActivity extends AppCompatActivity {
@@ -72,7 +76,7 @@ public class AudioActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-
+            // do nothing...
         }
     };
 
@@ -101,12 +105,12 @@ public class AudioActivity extends AppCompatActivity {
 
         @Override
         public void previousSentence() {
-            playAudioBinder.previousSentence();
+            audioViewModel.seekAudio(SeekMode.PREV_SENTENCE);
         }
 
         @Override
         public void nextSentence() {
-            playAudioBinder.nextSentence();
+            audioViewModel.seekAudio(SeekMode.NEXT_SENTENCE);
         }
     };
 
@@ -115,26 +119,15 @@ public class AudioActivity extends AppCompatActivity {
         public void onClick(View v) {
             TextView tvSongUri = v.findViewById(R.id.tv_uri_song);
             String mp3 = tvSongUri.getText().toString();
-
+            Log.i(TAG, "onClick: mp3 path = " + mp3);
             if (!hasAvailableAudioLrc(mp3)) {
                 homeBinding.tvCnStatement.setText("No lyric.");
             }
 
             List<Lyric> lyrics = lrcInfo(lrcPath(mp3));
-
-            for (int i = 0, s = lyrics.size() - 2; i <= s; i ++) {
-                lyrics.get(i).durationTime(lyrics.get(i + 1).getStartTime());
-            }
-
             audioViewModel.playAudio(new Song(mp3, lyrics));
 
             // TODO: 显示当前播放音频名称
-            // play mp3 file.
-            Toast.makeText(
-                    AudioActivity.this,
-                    "path:" + mp3,
-                    Toast.LENGTH_LONG)
-                    .show();
         }
     };
 
@@ -172,7 +165,7 @@ public class AudioActivity extends AppCompatActivity {
         if (isArrowAccessReadExtStorage) {
             Snackbar.make(homeBinding.rvNoteListView,
                     "No open permission for application!",
-                    LENGTH_SHORT).setAction("Request", v ->
+                    LENGTH_LONG).setAction("Request", v ->
                     ActivityCompat.requestPermissions(
                             AudioActivity.this,
                             new String[]{
@@ -185,18 +178,15 @@ public class AudioActivity extends AppCompatActivity {
     }
 
     private void initializedViewEvent() {
+
         audioViewModel.togglePlayEvent().observe(this, isPauseAudio -> {
             Song currentSong = audioViewModel.audioPlayedInfo();
-            Log.i(TAG, "initializedViewEvent: playAudioBinder = " + playAudioBinder);
+            Log.i(TAG, "isPauseAudio = " + isPauseAudio);
             if (playAudioBinder == null || currentSong == null) {
                 return;
             }
 
-            try {
-                playAudioBinder.pause();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            playAudioBinder.pause();
 
             if (playAudioBinder.isPlaying()) {
                 homeBinding.btnPlayMusic.setImageDrawable(playDrawable);
@@ -205,11 +195,22 @@ public class AudioActivity extends AppCompatActivity {
             }
         });
 
+        audioViewModel.seekAudioEvent().observe(this, seekMode -> {
+
+            if (seekMode.isNextSentence()) {
+                playAudioBinder.nextSentence();
+            } else {
+                playAudioBinder.previousSentence();
+            }
+            homeBinding.btnPlayMusic.setImageDrawable(playDrawable);
+        });
+
         audioViewModel.playItemAudioEvent().observe(this, song -> {
-            // start play audio.
+
             if (playAudioBinder == null) {
                 return;
             }
+
             if (song != null) {
                 try {
                     playAudioBinder.play(song);
@@ -242,8 +243,8 @@ public class AudioActivity extends AppCompatActivity {
     private List<Lyric> lrcInfo(String lrcPath) {
         List<Lyric> lyrics = new ArrayList<>();
         try (FileInputStream fileInputStream = new FileInputStream(lrcPath);
-             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, "utf-8");
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);) {
+             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
+             BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
             String regex = "\\[\\d\\d:\\d\\d.\\d\\d]";
             Pattern pattern = Pattern.compile(regex);
@@ -257,7 +258,10 @@ public class AudioActivity extends AppCompatActivity {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.w(TAG, Objects.requireNonNull(e.getMessage()));
+            Snackbar.make(homeBinding.rvNoteListView,
+                    "Read lrc file failed!",
+                    LENGTH_SHORT).show();
         }
         return lyrics;
     }
@@ -320,9 +324,7 @@ public class AudioActivity extends AppCompatActivity {
                 } while (cursor.moveToNext());
             }
             cursor.close();
-
-            audioViewModel.items.clear();
-            audioViewModel.items.addAll(songItemList);
+            audioViewModel.refreshSongs(songItemList);
         }
         return true;
     }

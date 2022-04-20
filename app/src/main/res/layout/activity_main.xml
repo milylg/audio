@@ -42,6 +42,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:gravity="center"
                 android:text="@{vm.enAudioStatement}"
                 android:textColor="@color/primaryColor"
@@ -51,6 +53,8 @@
                 android:id="@+id/tv_cn_statement"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_below="@+id/tv_en_statement"
                 android:gravity="center"
                 android:text="@{vm.cnAudioStatement}"
@@ -103,10 +107,9 @@
             android:fadingEdge="none"
             android:orientation="vertical"
             android:overScrollMode="never"
-            android:padding="12dp"
             app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
             app:songItems="@{vm.items}"
-            app:spanCount="1"
+            app:spanCount="2"
             tools:listitem="@layout/item_song" />
 
     </LinearLayout>

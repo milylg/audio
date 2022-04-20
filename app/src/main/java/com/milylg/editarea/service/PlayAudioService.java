@@ -18,16 +18,18 @@ public class PlayAudioService extends Service {
 
     private static final String TAG = "PlayAudioService";
 
+    private final PlayAudioBinder playAudioBinder = new PlayAudioBinder();
     private MediaPlayer mediaPlayer;
     private AudioPlayedCallback audioPlayedCallback;
     private final Timer timer = new Timer();
+    private LyricWork lyricWork;
+
 
     private class LyricWork extends TimerTask {
 
         private int currentLyricIndex;
-        int lyricNum;
-        String lyricStr = "";
-        List<Lyric> lyrics;
+        private final int lyricNum;
+        private final List<Lyric> lyrics;
 
         public LyricWork(List<Lyric> lyrics) {
             this.lyrics = lyrics;
@@ -38,7 +40,7 @@ public class PlayAudioService extends Service {
         @Override
         public void run() {
             int timePlayed = mediaPlayer.getCurrentPosition();
-            for (int i=0; i < lyricNum; i ++) {
+            for (int i = 0; i < lyricNum; i++) {
                 Lyric lyric = lyrics.get(i);
                 if (timePlayed >= lyric.getStartTime()
                         && timePlayed < lyric.getEndTime()) {
@@ -46,56 +48,44 @@ public class PlayAudioService extends Service {
                         audioPlayedCallback.lyricText(lyric.getLyric());
                         currentLyricIndex = i;
                     }
-                    // currentLyricIndex = i;
                     break;
                 }
             }
-
-//            if(!lyrics.isEmpty()) {
-//                if (!lyricStr.equals(lyrics.get(currentLyricIndex).getLyric())) {
-//                    audioPlayedCallback.lyricText(lyrics.get(currentLyricIndex).getLyric());
-//                }
-//            }
         }
 
-        public int previousMills() {
-            playAudioBinder.posPlayedTime = 0;
-            int prev = currentLyricIndex == 0 ? 0 : currentLyricIndex - 1;
+        public int prevLyricMills() {
+            playAudioBinder.seekToOrigin();
+            int prev = currentLyricIndex == 0
+                    ? currentLyricIndex : currentLyricIndex - 1;
             return lyrics.get(prev).getStartTime();
         }
 
-        public int nextMills() {
-            playAudioBinder.posPlayedTime = 0;
-            int next = currentLyricIndex == lyricNum - 1 ? lyricNum - 1 : currentLyricIndex + 1;
+        public int nextLyricMills() {
+            playAudioBinder.seekToOrigin();
+            int next = currentLyricIndex == lyricNum - 1
+                    ? currentLyricIndex : currentLyricIndex + 1;
             return lyrics.get(next).getStartTime();
         }
     }
-    private LyricWork lyricWork;
 
     public class PlayAudioBinder extends Binder {
 
-        int posPlayedTime = 0;
-        boolean isPlayFinished = false;
-        Song song;
+        private int playedTimePos = 0;
+        private boolean isPlayFinished = false;
+        private Song song;
 
-        public void pause() throws IOException {
+        public void pause() {
 
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
-                posPlayedTime = mediaPlayer.getCurrentPosition();
+                playedTimePos = mediaPlayer.getCurrentPosition();
                 return;
             }
 
-            mediaPlayer.seekTo(posPlayedTime);
+            mediaPlayer.seekTo(playedTimePos);
             mediaPlayer.start();
-
-            if (isPlayFinished) {
-                lyricWork = new LyricWork(song.getLyric());
-                timer.schedule(lyricWork, 0, 500);
-                isPlayFinished = false;
-            }
+            ifRebootLyricWork();
         }
-
 
 
         public void play(Song song) throws IOException {
@@ -121,28 +111,35 @@ public class PlayAudioService extends Service {
         }
 
         public void previousSentence() {
-            if (lyricWork!=null) {
-                mediaPlayer.seekTo(lyricWork.previousMills());
+            if (lyricWork != null) {
+                mediaPlayer.seekTo(lyricWork.prevLyricMills());
                 mediaPlayer.start();
-
-                if (isPlayFinished) {
-                    lyricWork = new LyricWork(song.getLyric());
-                    timer.schedule(lyricWork, 0, 500);
-                    isPlayFinished = false;
-                }
+                ifRebootLyricWork();
             }
         }
 
         public void nextSentence() {
-            if (lyricWork!=null) {
-                mediaPlayer.seekTo(lyricWork.nextMills());
+            if (lyricWork != null) {
+                mediaPlayer.seekTo(lyricWork.nextLyricMills());
                 mediaPlayer.start();
+                ifRebootLyricWork();
+            }
+        }
 
-                if (isPlayFinished) {
-                    lyricWork = new LyricWork(song.getLyric());
-                    timer.schedule(lyricWork, 0, 500);
-                    isPlayFinished = false;
-                }
+        // 当音频播放完成时，记录重新播放音频的位置
+        void seekToOrigin() {
+            playedTimePos = 0;
+        }
+
+        void audioPlayFinished() {
+            isPlayFinished = true;
+        }
+
+        private void ifRebootLyricWork() {
+            if (isPlayFinished) {
+                lyricWork = new LyricWork(song.getLyric());
+                timer.schedule(lyricWork, 0, 500);
+                isPlayFinished = false;
             }
         }
 
@@ -150,10 +147,6 @@ public class PlayAudioService extends Service {
             audioPlayedCallback = callback;
         }
     }
-
-
-
-    private final PlayAudioBinder playAudioBinder = new PlayAudioBinder();
 
     /**
      * 只有服务第一次创建时被调用
@@ -167,8 +160,8 @@ public class PlayAudioService extends Service {
                 mp -> {
                     audioPlayedCallback.onCompleted();
                     lyricWork.cancel();
-                    playAudioBinder.posPlayedTime = 0;
-                    playAudioBinder.isPlayFinished = true;
+                    playAudioBinder.seekToOrigin();
+                    playAudioBinder.audioPlayFinished();
                 });
         // OnError
     }
@@ -176,6 +169,7 @@ public class PlayAudioService extends Service {
     /**
      * 当需要服务一启动就执行一些任务，可以在这里进行。
      * 当服务每次被启动时，它都会被调用，而onCreate方法不会每次都被调用。
+     *
      * @param intent
      * @param flags
      * @param startId

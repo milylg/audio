@@ -4,7 +4,6 @@ public class Lyric {
     private final String lyric;
     private final int startTime;
     private int endTime;
-    private int duration;
 
     public Lyric(String lyric, int startTime) {
         this.lyric = lyric;
@@ -19,9 +18,8 @@ public class Lyric {
         return startTime;
     }
 
-    public void durationTime(int endTime) {
+    void setEndTime(int endTime) {
         this.endTime = endTime;
-        this.duration = endTime - startTime;
     }
 
     public int getEndTime() {
