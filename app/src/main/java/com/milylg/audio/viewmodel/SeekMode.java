@@ -1,4 +1,4 @@
-package com.milylg.editarea.viewmodel;
+package com.milylg.audio.viewmodel;
 
 public enum SeekMode {
     NEXT_SENTENCE, PREV_SENTENCE;

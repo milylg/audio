@@ -1,4 +1,4 @@
-package com.milylg.editarea;
+package com.milylg.audio;
 
 import android.app.Application;
 

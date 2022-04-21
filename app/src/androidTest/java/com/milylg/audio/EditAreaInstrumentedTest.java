@@ -1,11 +1,11 @@
-package com.milylg.editarea;
+package com.milylg.audio;
 
 import android.content.Context;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.milylg.editarea.editor.EditArea;
+import com.milylg.audio.editor.EditArea;
 
 import org.junit.After;
 import org.junit.Before;

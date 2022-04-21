@@ -1,4 +1,4 @@
-package com.milylg.editarea.ui;
+package com.milylg.audio.ui;
 
 import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.RecyclerView;

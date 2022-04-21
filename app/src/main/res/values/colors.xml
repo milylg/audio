@@ -8,4 +8,5 @@
     <color name="secondaryDarkColor">#F5A889</color>
     <color name="primaryTextColor">#91A5B9</color>
     <color name="secondaryTextColor">#eeeeee</color>
+    <color name="ic_launcher_background">#726F6F</color>
 </resources>

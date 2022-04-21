@@ -1,0 +1,5 @@
+Screen Record
+1. adb env variable path:C:\Users\YourSelfName\AppData\Local\Android\Sdk\platform-tools
+2. open cmd, enter 'adb shell screenrecord /storage/emulated/0/audio.mp4'
+3. use app for show
+4. mp4 convert to gif by GifCam

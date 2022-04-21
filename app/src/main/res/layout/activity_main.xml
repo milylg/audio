@@ -11,11 +11,11 @@
 
         <variable
             name="action"
-            type="com.milylg.editarea.ui.SongAdjustAction" />
+            type="com.milylg.audio.ui.SongAdjustAction" />
 
         <variable
             name="vm"
-            type="com.milylg.editarea.viewmodel.AudioViewModel" />
+            type="com.milylg.audio.viewmodel.AudioViewModel" />
     </data>
 
 
@@ -106,7 +106,7 @@
                 android:overScrollMode="never"
                 app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
                 app:songItems="@{vm.items}"
-                app:spanCount="2"
+                app:spanCount="3"
                 tools:listitem="@layout/item_song" />
 
         </LinearLayout>

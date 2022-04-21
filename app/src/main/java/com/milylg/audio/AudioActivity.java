@@ -1,4 +1,4 @@
-package com.milylg.editarea;
+package com.milylg.audio;
 
 import android.Manifest;
 import android.content.ComponentName;
@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,28 +25,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.milylg.editarea.databinding.ActivityMainBinding;
-import com.milylg.editarea.service.AudioPlayedCallback;
-import com.milylg.editarea.service.Lyric;
-import com.milylg.editarea.service.PlayAudioService;
-import com.milylg.editarea.service.Song;
-import com.milylg.editarea.ui.AudioItemClickAction;
-import com.milylg.editarea.ui.SongAdapter;
-import com.milylg.editarea.ui.SongAdjustAction;
-import com.milylg.editarea.ui.SongItem;
-import com.milylg.editarea.viewmodel.AudioViewModel;
-import com.milylg.editarea.viewmodel.SeekMode;
+import com.milylg.audio.databinding.ActivityMainBinding;
+import com.milylg.audio.service.AudioPlayedCallback;
+import com.milylg.audio.service.Lyric;
+import com.milylg.audio.service.PlayAudioService;
+import com.milylg.audio.service.Song;
+import com.milylg.audio.ui.AudioItemClickAction;
+import com.milylg.audio.ui.SongAdapter;
+import com.milylg.audio.ui.SongAdjustAction;
+import com.milylg.audio.ui.SongItem;
+import com.milylg.audio.viewmodel.AudioViewModel;
+import com.milylg.audio.viewmodel.SeekMode;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -180,12 +178,18 @@ public class AudioActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PlayAudioService.class);
         startService(intent);
         bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+        initializedViewEvent();
+        if(hasAvailablePermission()) {
+            refreshSongItems();
+        }
+    }
 
+    private boolean hasAvailablePermission() {
         int permissionCode = ContextCompat.checkSelfPermission(
                 AudioActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
-        boolean isArrowAccessReadExtStorage = permissionCode != PackageManager.PERMISSION_GRANTED;
-        if (isArrowAccessReadExtStorage) {
+        boolean isArrowAccessReadExtStorage = permissionCode == PackageManager.PERMISSION_GRANTED;
+        if (!isArrowAccessReadExtStorage) {
             Snackbar.make(homeBinding.rvNoteListView,
                     "No open permission for application!",
                     LENGTH_LONG).setAction("Request", v ->
@@ -197,7 +201,7 @@ public class AudioActivity extends AppCompatActivity {
                             1))
                     .show();
         }
-        initializedViewEvent();
+        return isArrowAccessReadExtStorage;
     }
 
     private void initializedViewEvent() {
@@ -331,34 +335,39 @@ public class AudioActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);
         if (item.getItemId() == R.id.search_music) {
-            Log.i("MainActivity", "search music files...");
-            // 扫描音乐文件
-            List<SongItem> songItemList = new ArrayList<>();
-            Cursor cursor = getContentResolver().query(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    new String[]{
-                            MediaStore.Audio.Media.DISPLAY_NAME,
-                            MediaStore.Audio.Media.DATA
-                    },
-                    null,
-                    null,
-                    MediaStore.Audio.AudioColumns.IS_MUSIC
-            );
-
-            if (cursor.moveToFirst()) {
-                SongItem song;
-                do {
-                    song = new SongItem(
-                            cursor.getString(0),
-                            cursor.getString(1)
-                    );
-                    songItemList.add(song);
-                } while (cursor.moveToNext());
+            Log.i(TAG, "OptionsItemSelected: Refresh Song Items");
+            if (hasAvailablePermission()) {
+                refreshSongItems();
             }
-            cursor.close();
-            audioViewModel.refreshSongs(songItemList);
         }
         return true;
+    }
+
+    private void refreshSongItems() {
+        List<SongItem> songItemList = new ArrayList<>();
+        Cursor cursor = getContentResolver().query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                new String[]{
+                        MediaStore.Audio.Media.DISPLAY_NAME,
+                        MediaStore.Audio.Media.DATA
+                },
+                null,
+                null,
+                MediaStore.Audio.AudioColumns.IS_MUSIC
+        );
+
+        if (cursor.moveToFirst()) {
+            SongItem song;
+            do {
+                song = new SongItem(
+                        cursor.getString(0),
+                        cursor.getString(1)
+                );
+                songItemList.add(song);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        audioViewModel.refreshSongs(songItemList);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.milylg.editarea.service;
+package com.milylg.audio.service;
 
 public class Lyric {
     private final String lyric;

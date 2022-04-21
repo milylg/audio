@@ -12,11 +12,11 @@
 
         <variable
             name="item"
-            type="com.milylg.editarea.ui.SongItem" />
+            type="com.milylg.audio.ui.SongItem" />
 
         <variable
             name="clickAction"
-            type="com.milylg.editarea.ui.AudioItemClickAction" />
+            type="com.milylg.audio.ui.AudioItemClickAction" />
     </data>
 
     <LinearLayout

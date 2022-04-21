@@ -1,4 +1,4 @@
-package com.milylg.editarea.service;
+package com.milylg.audio.service;
 
 import android.media.MediaPlayer;
 import android.os.AsyncTask;

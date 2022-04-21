@@ -1,4 +1,4 @@
-package com.milylg.editarea.ui;
+package com.milylg.audio.ui;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -7,8 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.milylg.editarea.databinding.ItemSongBinding;
-import com.milylg.editarea.viewmodel.AudioViewModel;
+import com.milylg.audio.databinding.ItemSongBinding;
+import com.milylg.audio.viewmodel.AudioViewModel;
 
 import java.util.ArrayList;
 import java.util.List;

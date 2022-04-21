@@ -1,4 +1,4 @@
-package com.milylg.editarea.viewmodel;
+package com.milylg.audio.viewmodel;
 
 import android.app.Application;
 
@@ -8,9 +8,9 @@ import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableList;
 import androidx.lifecycle.AndroidViewModel;
 
-import com.milylg.editarea.SingleLiveEvent;
-import com.milylg.editarea.service.Song;
-import com.milylg.editarea.ui.SongItem;
+import com.milylg.audio.SingleLiveEvent;
+import com.milylg.audio.service.Song;
+import com.milylg.audio.ui.SongItem;
 
 import java.util.List;
 
