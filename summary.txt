@@ -3,3 +3,7 @@ Screen Record
 2. open cmd, enter 'adb shell screenrecord /storage/emulated/0/audio.mp4'
 3. use app for show
 4. mp4 convert to gif by GifCam
+
+
+remote: Invalid username or password.
+pop token input dialog, enter token from generate by github.
